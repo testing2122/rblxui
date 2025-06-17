@@ -70,7 +70,7 @@ function clrwheel:Create(parent, config)
     wheel.Size = UDim2.new(0, size, 0, size);
     wheel.Position = UDim2.new(0, 0, 0, 0);
     wheel.BackgroundTransparency = 1;
-    wheel.Image = "rbxasset://textures/ColorWheel.png";
+    wheel.Image = "http://www.roblox.com/asset/?id=6020299385"; -- Updated to use a reliable color wheel image
     wheel.Parent = frame;
     
     local marker = Instance.new("Frame");
