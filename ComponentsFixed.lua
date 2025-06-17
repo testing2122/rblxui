@@ -142,6 +142,14 @@ function components:ApplyTheme(newTheme)
     print("🎨 Enhanced theme applied successfully! All UI elements updated.");
 end;
 
+local function registerElement(element, category, colorType)
+    if category == "texts" then
+        table.insert(uiElements[category], {element = element, colorType = colorType or "white"});
+    else
+        table.insert(uiElements[category], element);
+    end;
+end;
+
 function components:AddColorWheel(parent, cfg)
     local cfg = cfg or {};
     local name = cfg.Name or "Color Picker";
@@ -199,85 +207,6 @@ function components:AddColorWheel(parent, cfg)
     colorWheel.Frame.Position = UDim2.new(0.5, -100, 0, desc ~= "" and 45 or 25); -- Centered horizontally
     colorWheel.Frame.BackgroundTransparency = 0; -- Make sure it's visible
     colorWheel.Frame.ZIndex = 10; -- Ensure it's above other elements
-    
-    -- Register color wheel for theme updates
-    table.insert(uiElements.colorwheels, colorWheel);
-    
-    -- // add separator if requested
-    if separator then
-        self:AddSeparator(parent, separator == true and {} or separator);
-    end;
-    
-    return {
-        SetColor = function(color)
-            colorWheel.SetColor(color);
-        end,
-        GetColor = function()
-            return colorWheel.GetColor();
-        end
-    };
-end;
-
-local function registerElement(element, category, colorType)
-    if category == "texts" then
-        table.insert(uiElements[category], {element = element, colorType = colorType or "white"});
-    else
-        table.insert(uiElements[category], element);
-    end;
-end;
-
-function components:AddColorWheel(parent, cfg)
-    local cfg = cfg or {};
-    local name = cfg.Name or "Color Picker";
-    local desc = cfg.Description or "";
-    local default = cfg.Default or Color3.fromRGB(255, 105, 180);
-    local callback = cfg.Callback or function() end;
-    local separator = cfg.Separator;
-    
-    local wheelframe = Instance.new("Frame");
-    wheelframe.Name = name;
-    wheelframe.Size = UDim2.new(1, 0, 0, desc ~= "" and 245 or 225);
-    wheelframe.BackgroundTransparency = 1;
-    wheelframe.BorderSizePixel = 0;
-    wheelframe.LayoutOrder = #parent:GetChildren();
-    wheelframe.Parent = parent;
-    
-    -- // color wheel label
-    local wheellbl = Instance.new("TextLabel");
-    wheellbl.Size = UDim2.new(1, -60, 0, 20);
-    wheellbl.Position = UDim2.new(0, 0, 0, 5);
-    wheellbl.BackgroundTransparency = 1;
-    wheellbl.Text = name;
-    wheellbl.TextColor3 = clrs.white;
-    wheellbl.TextSize = 14;
-    wheellbl.Font = Enum.Font.GothamMedium;
-    wheellbl.TextXAlignment = Enum.TextXAlignment.Left;
-    wheellbl.Parent = wheelframe;
-    
-    registerElement(wheellbl, "texts", "white");
-    
-    -- // description
-    if desc ~= "" then
-        local desclbl = Instance.new("TextLabel");
-        desclbl.Size = UDim2.new(1, 0, 0, 15);
-        desclbl.Position = UDim2.new(0, 0, 0, 25);
-        desclbl.BackgroundTransparency = 1;
-        desclbl.Text = desc;
-        desclbl.TextColor3 = clrs.grey;
-        desclbl.TextSize = 12;
-        desclbl.Font = Enum.Font.Gotham;
-        desclbl.TextXAlignment = Enum.TextXAlignment.Left;
-        desclbl.Parent = wheelframe;
-        
-        registerElement(desclbl, "texts", "grey");
-    end;
-    
-    -- Create color wheel
-    local colorWheel = ColorWheel:Create(wheelframe, {
-        Size = 150,
-        Default = default,
-        Callback = callback
-    });
     
     -- Register color wheel for theme updates
     table.insert(uiElements.colorwheels, colorWheel);
