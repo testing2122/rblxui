@@ -141,6 +141,34 @@ local settingsbox = themestab:CreateBox({
     Height = 300
 });
 
+-- // Add color wheel for custom theme color
+local customColorWheel = Components:AddColorWheel(themebox, {
+    Name = "Custom Theme Color",
+    Description = "Pick a custom color for UI elements",
+    Default = Color3.fromRGB(255, 105, 180),
+    Callback = function(color)
+        print("Selected color:", color);
+        -- You can use this color to create a custom theme
+        local customTheme = {
+            bg = Color3.fromRGB(6, 6, 8),
+            secondary = Color3.fromRGB(12, 12, 15),
+            accent = Color3.fromRGB(20, 20, 25),
+            pink = color,
+            red = Color3.fromRGB(255, 80, 80),
+            darkpink = color:Lerp(Color3.new(0,0,0), 0.3),
+            lightpink = color:Lerp(Color3.new(1,1,1), 0.3),
+            white = Color3.fromRGB(255, 255, 255),
+            grey = Color3.fromRGB(120, 120, 125),
+            darkgrey = Color3.fromRGB(80, 80, 85),
+            separator = Color3.fromRGB(35, 35, 40),
+            toggleoff = Color3.fromRGB(80, 80, 85)
+        };
+        PinkUI:ApplyTheme(customTheme);
+        Components:ApplyTheme(customTheme);
+    end,
+    Separator = true
+});
+
 -- // FIXED: Theme application function that updates BOTH PinkUI and Components
 local function applyTheme(themeName)
     print("🎨 Applying", themeName, "theme...");
@@ -159,6 +187,11 @@ local function applyTheme(themeName)
             if titlebar and titlebar:FindFirstChild("Subtitle") then
                 titlebar.Subtitle.Text = "Current theme: " .. themeName;
             end;
+        end;
+        
+        -- Update color wheel to match theme color
+        if customColorWheel then
+            customColorWheel.SetColor(selectedTheme.pink);
         end;
         
         return true;
