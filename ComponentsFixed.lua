@@ -156,7 +156,7 @@ function components:AddColorWheel(parent, cfg)
     local cfg = cfg or {};
     local name = cfg.Name or "Color Picker";
     local desc = cfg.Description or "";
-    local default = cfg.Default or Color3.fromRGB(255, 0, 255);
+    local default = cfg.Default or Color3.fromRGB(255, 105, 180);
     local callback = cfg.Callback or function() end;
     local separator = cfg.Separator;
     
@@ -198,22 +198,129 @@ function components:AddColorWheel(parent, cfg)
         registerElement(desclbl, "texts", "grey");
     end;
     
-    -- Create a container frame for the color wheel
+    -- Create a container for the color wheel
     local wheelContainer = Instance.new("Frame");
     wheelContainer.Size = UDim2.new(1, -20, 0, 200);
     wheelContainer.Position = UDim2.new(0, 10, 0, desc ~= "" and 45 or 25);
     wheelContainer.BackgroundTransparency = 1;
     wheelContainer.Parent = wheelframe;
     
-    -- Create color wheel
-    local colorWheel = ColorWheel:Create(wheelContainer, {
-        Size = 200,
-        Default = default,
-        Callback = callback
-    });
+    -- Create the actual color wheel image
+    local wheelImage = Instance.new("ImageLabel");
+    wheelImage.Size = UDim2.new(0, 200, 0, 200);
+    wheelImage.Position = UDim2.new(0, 0, 0, 0);
+    wheelImage.BackgroundTransparency = 1;
+    wheelImage.Image = "rbxassetid://6020299385"; -- Color wheel image
+    wheelImage.Parent = wheelContainer;
     
-    -- Register color wheel for theme updates
-    table.insert(uiElements.colorwheels, colorWheel);
+    -- Create the selector
+    local selector = Instance.new("Frame");
+    selector.Size = UDim2.new(0, 8, 0, 8);
+    selector.AnchorPoint = Vector2.new(0.5, 0.5);
+    selector.BackgroundColor3 = Color3.new(1, 1, 1);
+    selector.BorderSizePixel = 0;
+    selector.Parent = wheelImage;
+    
+    local selectorCorner = Instance.new("UICorner");
+    selectorCorner.CornerRadius = UDim.new(1, 0);
+    selectorCorner.Parent = selector;
+    
+    -- Create value slider
+    local valueSlider = Instance.new("Frame");
+    valueSlider.Size = UDim2.new(0, 20, 1, 0);
+    valueSlider.Position = UDim2.new(1, 10, 0, 0);
+    valueSlider.BackgroundColor3 = Color3.new(1, 1, 1);
+    valueSlider.Parent = wheelImage;
+    
+    local valueSliderCorner = Instance.new("UICorner");
+    valueSliderCorner.CornerRadius = UDim.new(0, 4);
+    valueSliderCorner.Parent = valueSlider;
+    
+    local valueSelector = Instance.new("Frame");
+    valueSelector.Size = UDim2.new(1, 4, 0, 3);
+    valueSelector.AnchorPoint = Vector2.new(0.5, 0.5);
+    valueSelector.Position = UDim2.new(0.5, 0, 1, 0);
+    valueSelector.BackgroundColor3 = Color3.new(1, 1, 1);
+    valueSelector.BorderSizePixel = 0;
+    valueSelector.Parent = valueSlider;
+    
+    local valueSelectorCorner = Instance.new("UICorner");
+    valueSelectorCorner.CornerRadius = UDim.new(0, 2);
+    valueSelectorCorner.Parent = valueSelector;
+    
+    -- Variables for color handling
+    local selectedColor = default;
+    local isDragging = false;
+    local isValueDragging = false;
+    
+    -- Functions for color handling
+    local function updateColor(input)
+        local wheelPos = wheelImage.AbsolutePosition;
+        local wheelSize = wheelImage.AbsoluteSize;
+        
+        local center = wheelPos + wheelSize/2;
+        local radius = wheelSize.X/2;
+        local inputPos = Vector2.new(input.Position.X, input.Position.Y);
+        local delta = inputPos - center;
+        
+        local angle = math.atan2(delta.Y, delta.X);
+        local distance = math.min(delta.Magnitude, radius);
+        
+        local h = (angle + math.pi)/(2 * math.pi);
+        local s = distance/radius;
+        local v = 1 - (valueSelector.Position.Y.Scale);
+        
+        selectedColor = Color3.fromHSV(h, s, v);
+        selector.Position = UDim2.new(0.5 + math.cos(angle) * (distance/radius) * 0.5, 0, 
+                                    0.5 + math.sin(angle) * (distance/radius) * 0.5, 0);
+        
+        callback(selectedColor);
+    end;
+    
+    local function updateValue(input)
+        local sliderPos = valueSlider.AbsolutePosition;
+        local sliderSize = valueSlider.AbsoluteSize;
+        
+        local relativeY = math.clamp((input.Position.Y - sliderPos.Y) / sliderSize.Y, 0, 1);
+        valueSelector.Position = UDim2.new(0.5, 0, relativeY, 0);
+        
+        local h, s = selectedColor:ToHSV();
+        selectedColor = Color3.fromHSV(h, s, 1 - relativeY);
+        
+        callback(selectedColor);
+    end;
+    
+    -- Connect input events
+    wheelImage.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true;
+            updateColor(input);
+        end;
+    end);
+    
+    valueSlider.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isValueDragging = true;
+            updateValue(input);
+        end;
+    end);
+    
+    userinput.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            if isDragging then
+                updateColor(input);
+            elseif isValueDragging then
+                updateValue(input);
+            end;
+        end;
+    end);
+    
+    userinput.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false;
+            isValueDragging = false;
+        end;
+    end);
     
     -- // add separator if requested
     if separator then
@@ -222,22 +329,18 @@ function components:AddColorWheel(parent, cfg)
     
     return {
         SetColor = function(color)
-            colorWheel:SetColor(color);
+            selectedColor = color;
+            local h, s, v = color:ToHSV();
+            local angle = h * 2 * math.pi;
+            selector.Position = UDim2.new(0.5 + math.cos(angle) * s * 0.5, 0, 
+                                        0.5 + math.sin(angle) * s * 0.5, 0);
+            valueSelector.Position = UDim2.new(0.5, 0, 1 - v, 0);
+            callback(color);
         end,
         GetColor = function()
-            return colorWheel:GetColor();
+            return selectedColor;
         end
     };
-end;
--- // tween configs
-local twinfo = {
-    fast = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-    med = TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-    slow = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-};
-
-local function createtween(obj, info, props)
-    return tweenserv:Create(obj, info, props);
 end;
 
 -- // add separator function
