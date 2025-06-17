@@ -1,9 +1,9 @@
 -- // Pink UI Library Working Example with Fixed Theme System
 -- // Uses both PinkUIFixed.lua and ComponentsFixed.lua with coordinated theme application
 
-local PinkUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/roblox-pink-ui-lib/main/PinkUIFixed.lua"))();
-local Components = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/roblox-pink-ui-lib/main/ComponentsFixed.lua"))();
-local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/roblox-pink-ui-lib/main/Themes.lua"))();
+local PinkUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/rblxui/main/PinkUIFixed.lua"))();
+local Components = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/rblxui/main/ComponentsFixed.lua"))();
+local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/testing2122/rblxui/main/Themes.lua"))();
 
 -- // Check if libraries loaded correctly
 if not PinkUI then
