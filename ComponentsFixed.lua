@@ -156,7 +156,7 @@ function components:AddColorWheel(parent, cfg)
     local cfg = cfg or {};
     local name = cfg.Name or "Color Picker";
     local desc = cfg.Description or "";
-    local default = cfg.Default or Color3.fromRGB(255, 0, 255); -- Updated default color
+    local default = cfg.Default or Color3.fromRGB(255, 0, 255);
     local callback = cfg.Callback or function() end;
     local separator = cfg.Separator;
     
@@ -198,17 +198,19 @@ function components:AddColorWheel(parent, cfg)
         registerElement(desclbl, "texts", "grey");
     end;
     
-    -- Create color wheel with adjusted size and position
-    local colorWheel = ColorWheel:Create(wheelframe, {
-        Size = 200, -- Increased size for better visibility
+    -- Create a container frame for the color wheel
+    local wheelContainer = Instance.new("Frame");
+    wheelContainer.Size = UDim2.new(1, -20, 0, 200);
+    wheelContainer.Position = UDim2.new(0, 10, 0, desc ~= "" and 45 or 25);
+    wheelContainer.BackgroundTransparency = 1;
+    wheelContainer.Parent = wheelframe;
+    
+    -- Create color wheel
+    local colorWheel = ColorWheel:Create(wheelContainer, {
+        Size = 200,
         Default = default,
         Callback = callback
     });
-    
-    -- Center the color wheel in the frame
-    colorWheel.Frame.Position = UDim2.new(0, 10, 0, desc ~= "" and 45 or 25); -- Adjusted position to match UI
-    colorWheel.Frame.BackgroundTransparency = 0;
-    colorWheel.Frame.ZIndex = 10;
     
     -- Register color wheel for theme updates
     table.insert(uiElements.colorwheels, colorWheel);
@@ -220,14 +222,13 @@ function components:AddColorWheel(parent, cfg)
     
     return {
         SetColor = function(color)
-            colorWheel.SetColor(color);
+            colorWheel:SetColor(color);
         end,
         GetColor = function()
-            return colorWheel.GetColor();
+            return colorWheel:GetColor();
         end
     };
 end;
-
 -- // tween configs
 local twinfo = {
     fast = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
