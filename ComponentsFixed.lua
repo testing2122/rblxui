@@ -265,6 +265,8 @@ function components:AddSeparator(parent, cfg)
     return sepframe;
 end;
 
+print("toggle is here")
+
 -- // add components to box content
 function components:AddToggle(parent, cfg)
     local cfg = cfg or {};
