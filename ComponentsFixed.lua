@@ -150,6 +150,8 @@ local function registerElement(element, category, colorType)
     end;
 end;
 
+print("colowheel")
+
 function components:AddColorWheel(parent, cfg)
     local cfg = cfg or {};
     local name = cfg.Name or "Color Picker";
