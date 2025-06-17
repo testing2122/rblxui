@@ -142,6 +142,14 @@ function components:ApplyTheme(newTheme)
     print("🎨 Enhanced theme applied successfully! All UI elements updated.");
 end;
 
+local function registerElement(element, category, colorType)
+    if category == "texts" then
+        table.insert(uiElements[category], {element = element, colorType = colorType or "white"});
+    else
+        table.insert(uiElements[category], element);
+    end;
+end;
+
 function components:AddColorWheel(parent, cfg)
     local cfg = cfg or {};
     local name = cfg.Name or "Color Picker";
@@ -211,15 +219,6 @@ function components:AddColorWheel(parent, cfg)
             return colorWheel.GetColor();
         end
     };
-end;
-
--- // helper function to register UI elements
-local function registerElement(element, category, colorType)
-    if category == "texts" then
-        table.insert(uiElements[category], {element = element, colorType = colorType or "white"});
-    else
-        table.insert(uiElements[category], element);
-    end;
 end;
 
 -- // tween configs
